@@ -15,7 +15,7 @@ void setup()
      // Initialise the IO and ISR
     vw_set_ptt_inverted(true); // Required for RF Link module
     vw_setup(2000);                 // Bits per sec
-    vw_set_tx_pin(9);                // pin 3 is used as the transmit data out into the TX Link module, change this to suit your needs.
+    vw_set_tx_pin(9);                // pin 9 is used as the transmit data out into the TX Link module, change this to suit your needs.
 }
 
 void loop()

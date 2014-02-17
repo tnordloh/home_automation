@@ -2,10 +2,12 @@
 
 #include <Wire.h>
 #include "RTClib.h"
+#include <VirtualWire.h>  // you must download and install the VirtualWire.h to your hardware/libraries folder
 
 RTC_DS1307 rtc;
 char date[12];
 char time[9];
+int counter=0;
 
 boolean DEBUG=false;
 void setDateTime() {
@@ -32,7 +34,13 @@ void setDateTime() {
   }
 }
 void setup () {
-  Serial.begin(2400);
+  Serial.begin(9600);
+
+    vw_set_ptt_inverted(true); // Required for RF Link module
+    vw_setup(2000);                 // Bits per sec
+    vw_set_tx_pin(9);                // pin 9 is used as the transmit data out into the TX Link module, change this to suit your needs.
+    vw_set_rx_pin(11);           // We will be receiving on pin 23 (Mega) ie the RX pin from the module connects to this pin.
+    vw_rx_start();
 #ifdef AVR
   Wire.begin();
 #else
@@ -45,11 +53,30 @@ void setup () {
     // following line sets the RTC to the date & time this sketch was compiled
     //rtc.adjust(DateTime(__DATE__, __TIME__));
   }
+
+    
 }
 
 
 
 void loop () {
+  uint8_t buf[VW_MAX_MESSAGE_LEN];
+  uint8_t buflen = VW_MAX_MESSAGE_LEN;
+  Serial.println("receiving");
+ 
+  if (vw_get_message(buf, &buflen)) // check to see if anything has been received
+  {
+    int i;
+    // Message with a good checksum received.
+    char temp=0;;    
+    for (i = 0; i < buflen; i++) {   
+      temp=(char)buf[i];
+      Serial.print(temp);  // the received data is stored in buffer
+    }
+    Serial.print(" ");
+    Serial.print(counter++);
+    Serial.println("");
+  }
   if (Serial.available()) {      // Look for char in serial que and process if found
     int command = Serial.read();
     Serial.println(command);
@@ -73,6 +100,7 @@ void loop () {
 //        }
 //      }
     }
+
   }
   DateTime now = rtc.now();
   //Serial.println(__DATE__);
