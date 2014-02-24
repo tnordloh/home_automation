@@ -63,17 +63,45 @@ void loop () {
 
   if (vw_get_message(buf, &buflen)) // check to see if anything has been received
   {
+    char received[buflen];
     //int i;
     // Message with a good checksum received.
     char temp=0;  
     for (int i = 0; i < buflen; i++) {   
       temp=(char)buf[i];
+      received[i]=temp;
       Serial.print(temp);  // the received data is stored in buffer
     }
     Serial.print(" ");
     Serial.print(counter++);
     Serial.println();
+    if(received[0]=='T' && received[1]=='I' && received[2]=='M' && received[3] == 'E') {
+      delay(500);
+      DateTime now = rtc.now();
+      unsigned long now_unix = now.unixtime();
+      Serial.println("request made to broadcast current time");
+      Serial.println(now_unix);
+      Serial.println(now_unix, HEX);
+      char msg[50];
+      sprintf(msg, "TR%lu", now_unix); 
+      Serial.println( msg );
+
+      Serial.println(msg);
+      for(int i = 0;i<100;i++) {
+        vw_send((uint8_t *)msg, strlen(msg));
+        vw_wait_tx();          // Wait for message to finish
+        Serial.println("sending time response");
+        for(int j = 0; j < 6; j++) {
+          Serial.print(byte(msg[j]));
+          Serial.print('|');
+        }
+        Serial.println();
+        delay(1000);
+      }
+
+    } 
   }
+
   if (Serial.available()) {      // Look for char in serial que and process if found
     int command = Serial.read();
     Serial.println(command);
@@ -103,24 +131,29 @@ void loop () {
   //Serial.print(now.unixtime() / 86400L);
   //Serial.println("d");
   //if(DEBUG) {
-    // calculate a date which is 7 days and 30 seconds into the future
-    //DateTime future (now.unixtime() + 7 * 86400L + 30);
+  // calculate a date which is 7 days and 30 seconds into the future
+  //DateTime future (now.unixtime() + 7 * 86400L + 30);
 
-    //Serial.print(" now + 7d + 30s: ");
-    //Serial.print(future.year(), DEC);
-    //Serial.print('/');
-    //Serial.print(future.month(), DEC);
-    //Serial.print('/');
-    //Serial.print(future.day(), DEC);
-    //Serial.print(' ');
-    //Serial.print(future.hour(), DEC);
-    //Serial.print(':');
-    //Serial.print(future.minute(), DEC);
-    //Serial.print(':');
-    //Serial.print(future.second(), DEC);
-    //Serial.println();
-    //    
-    //Serial.println();
+  //Serial.print(" now + 7d + 30s: ");
+  //Serial.print(future.year(), DEC);
+  //Serial.print('/');
+  //Serial.print(future.month(), DEC);
+  //Serial.print('/');
+  //Serial.print(future.day(), DEC);
+  //Serial.print(' ');
+  //Serial.print(future.hour(), DEC);
+  //Serial.print(':');
+  //Serial.print(future.minute(), DEC);
+  //Serial.print(':');
+  //Serial.print(future.second(), DEC);
+  //Serial.println();
+  //    
+  //Serial.println();
   //}
   delay(3000);
 }
+
+
+
+
+
