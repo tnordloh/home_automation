@@ -1,4 +1,4 @@
-This is my home automation project.  It uses Arduino modules as its' core.  
+This is my home automation project.  It uses Arduino modules as its core.  
 
 The end result of this project should look something like a master unit that assigns and tracks tasks around the house.
 There will be helper units scattered around the house, which will talk back to the master unit.  Their purpose is to 
